@@ -430,26 +430,30 @@
                 buyer_tel: buyerTel,
                 buyer_addr: buyerAddr
             }, function (rsp) {
-                if (rsp.success) {
-                    alert("결제가 완료되었습니다.\n고유ID: " + rsp.imp_uid);
-        
-                    // 결제 후 데이터 로컬 스토리지에 저장
-                    localStorage.setItem("orderData", JSON.stringify(orderData));
-                    localStorage.setItem("addressData", JSON.stringify({
-                        addressName: $("#buyer-address-name").val(),
-                        recipientName: buyerName,
-                        phoneNumber: buyerTel,
-                        fullAddress: buyerAddr
-                    }));
-        
-                    // 결제 완료 페이지로 리다이렉트
-                    location.href = "/order/orderComplete";
+              if (rsp.success) {
+                alert("결제가 완료되었습니다.\n고유ID: " + rsp.imp_uid);
+            
+                // 결제 후 데이터 로컬 스토리지에 저장
+                localStorage.setItem("orderData", JSON.stringify(orderData));
+                localStorage.setItem("addressData", JSON.stringify({
+                    addressName: $("#buyer-address-name").val(),
+                    recipientName: buyerName,
+                    phoneNumber: buyerTel,
+                    fullAddress: buyerAddr
+                }));
+            
+                // 서버로 결제 정보와 주문 정보 전송
+                
+
+                location.href = "/order/orderComplete";
                 } else {
-                    alert("결제에 실패했습니다. 실패사유: " + rsp.error_msg);
+                   alert("결제에 실패했습니다. 실패사유: " + rsp.error_msg);
                 }
+              });
             });
-        });
-      });
+          });
+ 
+      
     
       function openAddressRegistration() {
           window.open('/order/addAddress', '주소 등록', 'width=500,height=700');
