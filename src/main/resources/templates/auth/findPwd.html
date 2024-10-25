@@ -313,7 +313,7 @@
       }
 
       // 이메일 인증 요청
-      await  sendEmailVerification(name, userEmail);
+      await sendEmailVerification(name, userEmail);
        $("#authenticationBtn").prop("disabled", true).text("인증코드 전송중...");
       // 실제 유저 찾기
       await findUser(name,userEmail);
@@ -332,7 +332,7 @@
     })
       .then(response => response.text())
       .then(data => {
-//      alert(data);
+      alert(data);
       verificationCode= data;
       alert("입력하신 이메일로 인증번호를 발송했습니다.");
       $(".formContainer").css("display", "none");
