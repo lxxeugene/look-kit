@@ -6,24 +6,7 @@
     <title>아이디 찾기 페이지</title>
     <script src="http://code.jquery.com/jquery-latest.min.js"></script>
     <link rel="stylesheet" th:href="@{/css/findID.css}" />
-    <script>
-        $(document).ready(() => {
-          $("#findIdBtn").click(() => {
-              let name = $('input[name="name"]').val();
-              let email = $('input[name="email"]').val();
-            console.log(name);
-            console.log(email);
-              if(!name || !email){
-                  alert("이름과 이메일을 입력해주세요.");
-                return;
-              }
-
-//            location.href = "/auth/findIdOK";
-              $("#findIdForm").submit();
-//              $(".notice-label").css({"color","#FF294F"},{"display","inline"});
-          });
-        });
-    </script>
+    <script src="/js/findID.js"></script>
 </head>
 <body>
 <div class="findIdContainer">
