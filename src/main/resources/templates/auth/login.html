@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
     <link rel="stylesheet" th:href="@{/css/login.css}" />
+
   </head>
   <body>
     <th:block layout:fragment="content">
@@ -58,32 +59,7 @@
     </th:block>
     <th:block layout:fragment="script">
       <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-      <script>
-        $(document).ready(function () {
-            $("#findIdLink").click(function () {
-                location.href = "/auth/findID";
-            });
-            $("#findPasswordLink").click(function () {
-                location.href = "/auth/findPwd";
-            });
-            $("#signupLink").click(function () {
-                location.href = "/auth/signUp";
-            });
-
-            $("#showPwdButton").click(function(){
-               $(this).css('display','none');
-            $("#NoShowPwdButton").css("display","block");
-              $("#pwdInputBox").attr("type", "text");
-            })
-
-          $("#NoShowPwdButton").click(function(){
-               $(this).css('display','none');
-            $("#showPwdButton").css('display','block');
-            $("#pwdInputBox").attr("type", "password");
-            })
-
-            });
-      </script>
+      <script src="/js/login.js"></script>
     </th:block>
   </body>
 </html>
