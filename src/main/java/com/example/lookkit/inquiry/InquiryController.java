@@ -1,5 +1,6 @@
 package com.example.lookkit.inquiry;
 
+import com.example.lookkit.common.dto.InquiryAnswerDTO;
 import com.example.lookkit.common.dto.InquiryImagesDTO;
 import com.example.lookkit.common.util.FileUtil;
 import com.example.lookkit.user.UserService;
@@ -63,12 +64,25 @@ public class InquiryController {
         }
     }
 
+//    @GetMapping("/view/{inquiryId}")
+//    public ModelAndView getInquiry(@PathVariable long inquiryId, HttpSession session){
+//        ModelAndView mv = new ModelAndView("mypage/inquiry");
+//        InquiryImagesDTO dto = inquiryService.getInquiry(inquiryId);
+//        mv.addObject("inquiry", dto);
+//        mv.addObject("username", userService.searchUserName((long) session.getAttribute("userid")));
+//        return mv;
+//    }
+
     @GetMapping("/view/{inquiryId}")
     public ModelAndView getInquiry(@PathVariable long inquiryId, HttpSession session){
         ModelAndView mv = new ModelAndView("mypage/inquiry");
         InquiryImagesDTO dto = inquiryService.getInquiry(inquiryId);
         mv.addObject("inquiry", dto);
         mv.addObject("username", userService.searchUserName((long) session.getAttribute("userid")));
+
+        if(dto.getAnswerState()=='Y'){
+            mv.addObject("answer", inquiryService.getAnswer(inquiryId));
+        }
         return mv;
     }
 

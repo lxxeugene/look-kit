@@ -18,6 +18,6 @@ public class InquiryImagesDTO {
     private String inquiryTitle;
     private String inquiryContents;
     private LocalDateTime inquiryCreatedAt;
-    private String answerState;
+    private char answerState;
     private List<InquiryImageVO> inquiryImages = new ArrayList<>();  // 기본값으로 빈 리스트 설정
 }

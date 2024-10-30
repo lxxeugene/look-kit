@@ -84,7 +84,7 @@
 }
 
 .inquiry-subject {
-    font-size: 19px;
+    font-size: 18px;
     color: #000000;
     font-weight: 500;
     margin : 0px;
@@ -93,10 +93,10 @@
 
 .inquiry-text,
 .reply-text {
-    font-size: 18px;
+    font-size: 15px;
     line-height: 1.6;
     margin-bottom: 30px;
-    margin-top: 50px;
+    margin-top: 25px;
 }
 
 .inquiry-image {
@@ -104,7 +104,7 @@
 }
 
 .reply {
-    margin-top: 20px;
+    margin-top: 80px;
 }
 
 .reply-content {
@@ -125,4 +125,12 @@
     font-weight: 500;
     margin-top: 20px;
     cursor: pointer;
+}
+
+.answer-state {
+    align-self: baseline;
+    font-size: 13px;
+    color: #FF5722;
+    font-weight: bold;
+    margin-top: 4px;
 }

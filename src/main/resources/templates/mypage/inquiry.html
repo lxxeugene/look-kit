@@ -26,11 +26,10 @@
         <div class="inquiry-meta">
           <img th:src="@{/images/inquiries/question.png}" alt=""/>
           <div>
-              <p class="inquiry-subject" th:text="${inquiry.inquiryTitle}">문의명</p>
+            <p class="inquiry-subject" th:text="${inquiry.inquiryTitle}">문의명</p>
             <span class="inquiry-date" th:text="${#temporals.format(inquiry.inquiryCreatedAt, 'yyyy-MM-dd HH:mm')}">문의날짜</span>
-
           </div>
-          <span th:if="${inquiry.answerState eq 'Y'}" class="inquiry-status" th:text="답변 완료">답변 완료</span>
+          <span class="answer-state" th:text="${answer != null ? '답변 완료' : ''}"></span>
         </div>
         <div class="inquiry-content">
           <p class="inquiry-text" th:text="${inquiry.inquiryContents}">문의 내용</p>
@@ -42,17 +41,16 @@
         </div>
       </div>
 
-      <div class="reply" th:if="${inquiry.answerState eq 'Y'}">
+      <div class="reply" th:if="${answer != null}">
         <div class="inquiry-meta">
           <img class="meta-icon question"  th:src="@{/images/inquiries/answer.png}" alt=""/>
           <div>
             <p class="inquiry-subject">루킷 담당자</p>
-            <span class="inquiry-date">2024.10.04 12:40</span>
+            <span class="inquiry-date" th:text="${#temporals.format(answer.answerCreatedAt, 'yyyy-MM-dd HH:mm')}">답변 시간</span>
           </div>
         </div>
         <div class="reply-content">
-          <p class="reply-text">
-          </p>
+          <p class="reply-text" th:text="${answer.answerContents}">답변 내용</p>
         </div>
       </div>
 

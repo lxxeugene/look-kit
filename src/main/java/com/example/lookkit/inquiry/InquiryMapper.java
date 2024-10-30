@@ -1,5 +1,6 @@
 package com.example.lookkit.inquiry;
 
+import com.example.lookkit.common.dto.InquiryAnswerDTO;
 import com.example.lookkit.common.dto.InquiryImagesDTO;
 import org.apache.ibatis.annotations.*;
 
@@ -44,4 +45,7 @@ public interface InquiryMapper {
             "FROM INQUIRIES_IMAGES WHERE INQUIRY_ID = #{inquiryId}")
     List<InquiryImageVO> getImages(long inquiryId);
 
+    @Select("Select ANSWER_ID, INQUIRY_ID, ANSWER_CREATED_AT, ANSWER_CONTENTS " +
+            "FROM INQUIRIES_ANSWER WHERE INQUIRY_ID = #{inquiryId}")
+    InquiryAnswerDTO getAnswer(long inquiryId);
 }
