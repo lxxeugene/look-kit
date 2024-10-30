@@ -1,6 +1,5 @@
 package com.example.lookkit.inquiry;
 
-import com.example.lookkit.common.dto.InquiryAnswerDTO;
 import com.example.lookkit.common.dto.InquiryImagesDTO;
 import com.example.lookkit.common.util.FileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,7 +55,7 @@ public class InquiryService {
         return dao.getInquiryWithImages(inquiryId);
     }
 
-    public InquiryAnswerDTO getAnswer(long inquiryId) {
+    public InquiryAnswerVO getAnswer(long inquiryId) {
         return dao.getAnswer(inquiryId);
     }
 }

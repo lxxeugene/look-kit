@@ -1,4 +1,4 @@
-package com.example.lookkit.common.dto;
+package com.example.lookkit.inquiry;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-public class InquiryAnswerDTO {
+public class InquiryAnswerVO {
     private long answerId;
     private long inquiryId;
     private LocalDateTime answerCreatedAt;

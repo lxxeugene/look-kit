@@ -1,8 +1,6 @@
 package com.example.lookkit.inquiry;
 
-import com.example.lookkit.common.dto.InquiryAnswerDTO;
 import com.example.lookkit.common.dto.InquiryImagesDTO;
-import com.example.lookkit.common.util.FileUtil;
 import com.example.lookkit.user.UserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
