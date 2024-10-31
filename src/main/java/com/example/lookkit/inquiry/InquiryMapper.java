@@ -44,4 +44,7 @@ public interface InquiryMapper {
             "FROM INQUIRIES_IMAGES WHERE INQUIRY_ID = #{inquiryId}")
     List<InquiryImageVO> getImages(long inquiryId);
 
+    @Select("Select ANSWER_ID, INQUIRY_ID, ANSWER_CREATED_AT, ANSWER_CONTENTS " +
+            "FROM INQUIRIES_ANSWER WHERE INQUIRY_ID = #{inquiryId}")
+    InquiryAnswerVO getAnswer(long inquiryId);
 }

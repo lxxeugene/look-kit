@@ -54,4 +54,8 @@ public class InquiryService {
     public InquiryImagesDTO getInquiry(long inquiryId){
         return dao.getInquiryWithImages(inquiryId);
     }
+
+    public InquiryAnswerVO getAnswer(long inquiryId) {
+        return dao.getAnswer(inquiryId);
+    }
 }

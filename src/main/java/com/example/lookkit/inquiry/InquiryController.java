@@ -1,7 +1,6 @@
 package com.example.lookkit.inquiry;
 
 import com.example.lookkit.common.dto.InquiryImagesDTO;
-import com.example.lookkit.common.util.FileUtil;
 import com.example.lookkit.user.UserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,6 +68,10 @@ public class InquiryController {
         InquiryImagesDTO dto = inquiryService.getInquiry(inquiryId);
         mv.addObject("inquiry", dto);
         mv.addObject("username", userService.searchUserName((long) session.getAttribute("userid")));
+
+        if(dto.getAnswerState()=='Y'){
+            mv.addObject("answer", inquiryService.getAnswer(inquiryId));
+        }
         return mv;
     }
 
