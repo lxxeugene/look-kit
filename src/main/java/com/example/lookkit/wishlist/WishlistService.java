@@ -1,13 +1,20 @@
 package com.example.lookkit.wishlist;
 
+import com.example.lookkit.common.dto.ProductWishlistDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class WishlistService {
 
     private final WishlistMapper wishlistMapper;
+
+    public List<ProductWishlistDTO> getWishList(long userId) {
+        return wishlistMapper.getWishList(userId);
+    }
 
     // 위시리스트 추가&삭제
     public String addWishlistItem(WishlistVO wishlistVO){

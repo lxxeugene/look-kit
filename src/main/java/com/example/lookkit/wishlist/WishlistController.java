@@ -16,14 +16,14 @@ import java.util.List;
 @RequestMapping("/mypage")
 public class WishlistController {
     @Autowired
-    WishlistMapper dao;
+    WishlistService service;
     @Autowired
     UserService userService;
 
     @GetMapping("/wishlist")
     public String getWishList(Model model, HttpSession session) {
         long userId = (long) session.getAttribute("userid");
-        List<ProductWishlistDTO> wishlist = dao.getWishList(userId);
+        List<ProductWishlistDTO> wishlist = service.getWishList(userId);
         model.addAttribute("wishlist", !wishlist.isEmpty() ? wishlist : new ArrayList<>());
         model.addAttribute("username", userService.searchUserName(userId));
         return "mypage/wishlist";

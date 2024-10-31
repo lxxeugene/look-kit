@@ -62,15 +62,6 @@ public class InquiryController {
         }
     }
 
-//    @GetMapping("/view/{inquiryId}")
-//    public ModelAndView getInquiry(@PathVariable long inquiryId, HttpSession session){
-//        ModelAndView mv = new ModelAndView("mypage/inquiry");
-//        InquiryImagesDTO dto = inquiryService.getInquiry(inquiryId);
-//        mv.addObject("inquiry", dto);
-//        mv.addObject("username", userService.searchUserName((long) session.getAttribute("userid")));
-//        return mv;
-//    }
-
     @GetMapping("/view/{inquiryId}")
     public ModelAndView getInquiry(@PathVariable long inquiryId, HttpSession session){
         ModelAndView mv = new ModelAndView("mypage/inquiry");
