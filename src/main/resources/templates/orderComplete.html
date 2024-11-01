@@ -863,64 +863,60 @@
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
   <script>
     $(document).ready(function () {
-      // localStorage에서 주문 데이터와 배송지 데이터 가져오기
-      const orderData = JSON.parse(localStorage.getItem('orderData'));
-      const addressData = JSON.parse(localStorage.getItem('addressData'));
-
-      if (orderData && orderData.items) {
-        // 주문번호 설정 (현재는 타임스탬프 사용)
-        $('#order-id').text('ORD-' + new Date().getTime());
-
-        // 상품 정보 추가
-        orderData.items.forEach(item => {
-          $('#product-list').append(`
-            <div class="product-item">
-              <div class="product-price">
-                <div class="price-amount">${item.price.toLocaleString()}원</div>
-              </div>
-              <div class="product-details-wrapper">
-                <div class="product-image-wrapper">
-                  <div class="product-image-background">
-                    <img class="product-image" src="/images/products/0${item.productId}/${item.productId}_thumbnail.webp" alt="상품 이미지" />
+      // 주문 완료 정보 로드
+      $.ajax({
+        type: "GET",
+        url: "/order/complete/details",
+        success: function(orderData) {
+          if (orderData) {
+            $('#order-id').text(orderData.orderId);
+            
+            orderData.items.forEach(item => {
+              $('#product-list').append(`
+                <div class="product-item">
+                  <div class="product-price">
+                    <div class="price-amount">${item.price.toLocaleString()}원</div>
                   </div>
-                  <div class="product-description">
-                    <div class="product-brand-name">${item.brandName}</div>
-                    <div class="product-name">${item.productName}</div>
-                    <div class="product-variant">${item.quantity}개</div>
+                  <div class="product-details-wrapper">
+                    <div class="product-image-wrapper">
+                      <div class="product-image-background">
+                        <img class="product-image" src="/images/products/0${item.productId}/${item.productId}_thumbnail.webp" alt="상품 이미지" />
+                      </div>
+                      <div class="product-description">
+                        <div class="product-brand-name">${item.brandName}</div>
+                        <div class="product-name">${item.productName}</div>
+                        <div class="product-variant">${item.quantity}개</div>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          `);
-        });
-
-        // 결제 정보 추가
-        $('#total-amount').text(orderData.totalPrice.toLocaleString());
-        $('#final-amount').text(orderData.totalPrice.toLocaleString());
-      }
-
-      if (addressData) {
-        // 배송지 정보 추가
-        $('#shipping-address-name').text(addressData.addressName);
-        $('#shipping-recipient-name').text(addressData.recipientName);
-        $('#shipping-phone-number').text(addressData.phoneNumber);
-        $('#shipping-address').text(addressData.fullAddress);
-      }
-
-      // 결제수단 설정 (기본 값으로 카드 사용)
-      $('#payment-method').text('신용/체크카드');
-
-      // '구매내역 보기' 버튼 클릭 시 구매 내역 페이지로 이동
-      $('.view-order-link').click(function () {
-        location.href = '/mypage/manage'; // 구매내역 페이지로 이동 (URL 수정 필요)
+              `);
+            });
+  
+            $('#shipping-address-name').text(orderData.addressData.addressName);
+            $('#shipping-recipient-name').text(orderData.addressData.recipientName);
+            $('#shipping-phone-number').text(orderData.addressData.phoneNumber);
+            $('#shipping-address').text(orderData.addressData.fullAddress);
+            $('#payment-method').text(orderData.paymentMethod);
+            $('#total-amount').text(orderData.totalPrice.toLocaleString());
+            $('#final-amount').text(orderData.totalPrice.toLocaleString());
+          }
+        },
+        error: function() {
+          alert("주문 완료 정보를 불러오는 데 실패했습니다.");
+        }
       });
-      
-      // '쇼핑 홈 가기' 버튼 클릭 시 쇼핑 홈으로 이동
+  
+      // 버튼 클릭 이벤트
+      $('.view-order-link').click(function () {
+        location.href = '/mypage/manage';
+      });
+  
       $('.home-link').click(function () {
-        location.href = '/main'; // 쇼핑 홈 페이지로 이동 (URL 수정 필요)
+        location.href = '/main';
       });
     });
-  </script>
+  </script>  
 </th:block>
 </body>
 </html>

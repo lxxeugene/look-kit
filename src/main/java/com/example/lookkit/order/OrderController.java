@@ -1,99 +1,114 @@
 package com.example.lookkit.order;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-import java.util.stream.Collectors;
-import com.example.lookkit.cart.CartVO;
-import com.example.lookkit.cart.CartService;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.List;
+import com.example.lookkit.cart.CartService;
+import com.example.lookkit.cart.CartVO;
+import com.example.lookkit.product.ProductService;
+import com.example.lookkit.product.ProductVO;
+import com.example.lookkit.user.CustomUser;
 
 @Controller
 @RequestMapping("/order")
 public class OrderController {
 
-    @Autowired
-    private OrderService orderService;
+    private final OrderService orderService;
+    private final CartService cartService;
+    private final ProductService productService;
 
     @Autowired
-    private CartService cartService;
+    public OrderController(OrderService orderService, CartService cartService, ProductService productService) {
+        this.orderService = orderService;
+        this.cartService = cartService;
+        this.productService = productService;
+    }
+
+    private List<OrderDetailDTO> fetchOrderDetails(long userId) {
+        List<CartVO> cartItems = cartService.getCartItemsByUserId(userId);
+
+        return cartItems.stream().map(cartItem -> {
+            ProductVO product = productService.getProductById(cartItem.getProductId());
+            return OrderDetailDTO.builder()
+                    .productId(cartItem.getProductId())
+                    .productName(product.getProductName())
+                    .brandName(product.getBrandName())
+                    .quantity(cartItem.getQuantity())
+                    .productPrice(product.getProductPrice())
+                    .build();
+        }).toList();
+    }
 
     @GetMapping
-    public String orderPage(@RequestParam(required = false) List<Integer> selectedItems, Model model) {
-        if (selectedItems != null && !selectedItems.isEmpty()) {
-            List<OrderDetailDTO> items = orderService.getOrderDetails(selectedItems);
-            int totalAmount = items.stream().mapToInt(item -> item.getProductPrice() * item.getQuantity()).sum();
+    public String getOrderPage(Authentication authentication, Model model) {
+        CustomUser user = (CustomUser) authentication.getPrincipal();
+        long userId = user.getUserId();
 
-            model.addAttribute("orderDetails", items);
-            model.addAttribute("totalAmount", totalAmount);
-        }
+        List<OrderDetailDTO> orderItems = fetchOrderDetails(userId);
+        int totalAmount = orderItems.stream().mapToInt(item -> item.getProductPrice() * item.getQuantity()).sum();
+        int totalQuantity = orderItems.stream().mapToInt(OrderDetailDTO::getQuantity).sum();
+
+        model.addAttribute("orderItems", orderItems);
+        model.addAttribute("totalAmount", totalAmount);
+        model.addAttribute("totalQuantity", totalQuantity);
 
         return "order";
     }
 
-    @PostMapping("/create")
-    public String createOrder(@RequestBody List<Integer> selectedItems, Model model) {
-        int userId = 1; // 실제 서비스에서는 사용자 ID를 인증 정보로 가져와야 합니다.
-        List<CartVO> items = cartService.getSelectedCartItems(selectedItems);
+    @GetMapping("/details")
+    @ResponseBody
+    public List<OrderDetailDTO> getOrderDetails(Authentication authentication) {
+        CustomUser user = (CustomUser) authentication.getPrincipal();
+        long userId = user.getUserId();
 
-        // 주문 상세 정보를 생성합니다.
-        List<OrderDetailDTO> orderDetails = items.stream()
-                .map(cartItem -> OrderDetailDTO.builder()
-                        .productId(cartItem.getProductId())
-                        .productName(cartItem.getProductName())
-                        .productPrice(cartItem.getProductPrice())
-                        .productThumbnail(cartItem.getProductThumbnail())
-                        .quantity(cartItem.getQuantity())
-                        .build())
-                .collect(Collectors.toList());
-
-        // 주문 객체 생성
-        OrderVO orderVO = OrderVO.builder()
-                .userId(userId)
-                .orderAddressee("홍길동") // 예시 값, 실제로는 사용자 정보 사용
-                .orderAddress("서울특별시") // 예시 값, 실제로는 사용자 정보 사용
-                .orderPhone("010-1234-5678") // 예시 값, 실제로는 사용자 정보 사용
-                .build();
-
-        try {
-            orderService.createOrder(orderVO, orderDetails);
-            model.addAttribute("order", orderVO);
-            model.addAttribute("orderDetails", orderDetails); // 주문 상세 정보도 추가
-            return "order";
-        } catch (Exception e) {
-            e.printStackTrace();
-            model.addAttribute("errorMessage", "Error placing order. Please try again.");
-            return "order";
-        }
+        return fetchOrderDetails(userId);
     }
 
     @PostMapping
-    @ResponseBody
-    public String createOrder(@RequestBody List<Integer> selectedItems) {
-        // 주문 생성 로직은 생략되었으며, 위와 비슷하게 OrderDetailDTO를 사용해 데이터를 생성하도록 수정하면 됩니다.
-        return "Order successfully created";
+    public String handleOrder(@RequestParam int productId, @RequestParam int quantity, Authentication authentication, Model model) {
+        CustomUser user = (CustomUser) authentication.getPrincipal();
+        long userId = user.getUserId();
+
+        ProductVO product = productService.getProductById(productId);
+        OrderDetailDTO orderItem = OrderDetailDTO.builder()
+                .productId(productId)
+                .productName(product.getProductName())
+                .brandName(product.getBrandName())
+                .quantity(quantity)
+                .productPrice(product.getProductPrice())
+                .build();
+
+        List<OrderDetailDTO> orderItems = List.of(orderItem);
+        int totalAmount = product.getProductPrice() * quantity;
+
+        model.addAttribute("orderItems", orderItems);
+        model.addAttribute("totalAmount", totalAmount);
+        model.addAttribute("totalQuantity", quantity);
+
+        return "order";
     }
-
-    @PostMapping("/payment")
-    @ResponseBody
-    public String processPayment(@RequestParam int orderId, @RequestParam String paymentMethod) {
-        boolean paymentResult = orderService.processPayment(orderId, paymentMethod);
-        return paymentResult ? "Payment successful" : "Payment failed";
-    }
-
-
 
     @GetMapping("/addAddress")
     public String addAddressPage() {
         return "addAddress";
     }
 
-
     @GetMapping("/orderComplete")
     public String orderCompletePage(Model model) {
-       model.addAttribute("message", "주문이 완료되었습니다.");
        return "orderComplete";
     }
 }
+
+
+
