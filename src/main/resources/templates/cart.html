@@ -305,16 +305,16 @@
         <div class="summary-details">
           <div class="summary-item">
               <span>총 상품금액</span>
-              <strong id="total-price">29,000원</strong> 
+              <strong id="total-price">0원</strong> 
           </div>
           <div class="summary-item">
               <span>최종 결제 예상 금액</span>
-              <strong id="total-final-price">29,000원</strong> 
+              <strong id="total-final-price">0원</strong> 
           </div>
         </div>
         <div class="checkout-button-container">
           <button class="checkout-button" id="checkout-button">
-              <span>총 1개 / 29,000원 주문하기</span>
+              <span>총 0개 / 0원 주문하기</span>
               <img class="checkout-icon">
           </button>
         </div>
@@ -323,106 +323,55 @@
 <th:block layout:fragment="script">
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script>
-  // Cart page script
-  document.addEventListener("DOMContentLoaded", function () {
-    let cartData = JSON.parse(localStorage.getItem("cartItems")) || [];
+  document.addEventListener("DOMContentLoaded", function() {
     const cartItemList = document.querySelector(".cart-item-list");
 
-    
-    cartData.forEach(item => {
-      const cartItemHTML = `
-        
-        <div class="cart-item" data-cart-id="${item.productId}">
-          <div class="item-checkbox">
-              <input type="checkbox" class="checkbox-input" checked />
-          </div>
-          <div class="item-thumbnail">
-            <a href="/product/${item.productId}">
-              <img class="thumbnail-img" src="/images/products/0${item.productId}/${item.productId}_thumbnail.webp" alt="상품써니얼" />
-            </a>
-          </div>
-          <div class="item-description">
-            <div class="brand-name2">${item.brandName}</div>
-            <div class="product-name">${item.productName}</div>
-            <div class="product-variant">${item.quantity}개</div>
-          </div>
-          <div class="item-like-button">
-            <button class="like-button">
-              <img class="like-icon" src="/images/icon/goods-like-off-svg0.svg"/>
-            </button>
-          </div>
-          <div class="item-price">
-            <strong>${item.price.toLocaleString()}원</strong>
-          </div>
-          <div>
-            <input class="item-quantity quantity-input" type="number" value="${item.quantity}" min="1" data-cart-id="${item.productId}" />
-          </div>
-          <div class="item-options-button">
-            <button class="options-button" data-cart-id="${item.productId}">
-              <span>옵션/수량 변경</span>
-              <img class="options-icon" src="/images/icon/icon-option.svg" />
-            </button>
-          </div>
-        </div>`;
+    $.ajax({
+      type: "GET",
+      url: "/cart/items",
+      success: function(cartItems) {
+        console.log("장바구니 데이터:", cartItems); // 데이터를 로깅하여 확인합니다.
+        if (!Array.isArray(cartItems)) {
+          cartItems = []; // 응답 데이터가 배열이 아니면 빈 배열로 초기화합니다.
+        }
 
-      cartItemList.insertAdjacentHTML("beforeend", cartItemHTML);
-    });
+        cartItems.forEach(item => {
+          const productPrice = item.productPrice;
 
-    updateTotalPrice();
+          if (productPrice === undefined) {
+            console.error(`상품 ID ${item.productId}에 대한 가격 정보가 없습니다.`);
+            return;
+          }
 
-    $("#checkout-button").click(function () {
-      let selectedItems = [];
-      let totalPrice = 0;
-      let totalQuantity = 0;
-    
-      $(".checkbox-input:checked").each(function () {
-        const cartItem = $(this).closest(".cart-item");
-        const productId = cartItem.data("cart-id");
-        const quantity = parseInt(cartItem.find(".item-quantity").val());
-        const price = parseInt(cartItem.find(".item-price strong").text().replace(/\D/g, ""));
-        const productName = cartItem.find('.product-name').text();
-        const brandName = cartItem.find('.brand-name2').text();
-    
-        // 장바구니에서 선택된 상품 정보를 selectedItems에 추가
-        selectedItems.push({
-          productId: productId,
-          productName: productName,
-          brandName: brandName,
-          quantity: quantity,
-          price: price
+          const cartItemHTML = `
+            <div class="cart-item" data-cart-id="${item.cartId}">
+              <div class="item-checkbox">
+                <input type="checkbox" class="checkbox-input" checked />
+              </div>
+              <div class="item-thumbnail">
+                <a href="/product/${item.productId}">
+                  <img class="thumbnail-img" src="/images/products/0${item.productId}/${item.productId}_thumbnail.webp" alt="상품 이미지" />
+                </a>
+              </div>
+              <div class="item-description">
+                <div class="brand-name2">${item.brandName}</div>
+                <div class="product-name">${item.productName}</div>
+                <div class="product-variant">${item.quantity}개</div>
+              </div>
+              <div class="item-price">
+                <strong>${productPrice.toLocaleString()}원</strong>
+              </div>
+              <div>
+                <input class="item-quantity quantity-input" type="number" value="${item.quantity}" min="1" data-cart-id="${item.cartId}" />
+              </div>
+            </div>`;
+          cartItemList.insertAdjacentHTML("beforeend", cartItemHTML);
         });
-    
-        // 총 가격 및 총 수량 계산
-        totalPrice += quantity * price;
-        totalQuantity += quantity;
-      });
-    
-      // 선택된 상품이 없을 경우 알림
-      if (selectedItems.length === 0) {
-        alert("주문할 상품을 선택해주세요.");
-        return;
+        updateTotalPrice();
+      },
+      error: function() {
+        alert("장바구니 데이터를 불러오는 데 실패했습니다.");
       }
-    
-      // 주문 데이터를 localStorage에 저장
-      localStorage.setItem('orderData', JSON.stringify({
-        items: selectedItems,
-        totalPrice: totalPrice,
-        totalQuantity: totalQuantity
-      }));
-    
-      // 주문 페이지로 이동
-      location.href = "/order";
-    });
-    
-
-    $("#delete-selected-button").click(function () {
-      $(".checkbox-input:checked").each(function () {
-        const cartId = $(this).closest(".cart-item").data("cart-id");
-        cartData = cartData.filter(item => item.productId != cartId);
-        localStorage.setItem('cartItems', JSON.stringify(cartData));
-        $(this).closest(".cart-item").remove();
-      });
-      updateTotalPrice();
     });
 
     $(document).on("change", ".item-quantity", function () {
@@ -434,19 +383,57 @@
         return;
       }
 
-      cartData = cartData.map(item => {
-        if (item.productId === cartId) {
-          item.quantity = newQuantity;
+      $.ajax({
+        type: "POST",
+        url: "/cart/update",
+        data: { cartId: cartId, quantity: newQuantity },
+        success: function() {
+          const cartItem = $(`[data-cart-id='${cartId}']`);
+          const productPrice = parseInt(cartItem.find(".product-price").text().replace(/\D/g, ""));
+          cartItem.find(".product-variant").text(`${newQuantity}개`);
+          cartItem.find(".item-price .product-price").text((productPrice * newQuantity).toLocaleString() + "원");
+          updateTotalPrice();
+        },
+        error: function() {
+          alert("수량을 변경하는 데 실패했습니다.");
         }
-        return item;
       });
+    });
 
-      localStorage.setItem('cartItems', JSON.stringify(cartData));
+    $("#delete-selected-button").click(function () {
+      const selectedItems = $(".checkbox-input:checked").map(function() {
+        return $(this).closest(".cart-item").data("cart-id");
+      }).get();
+
+      if (selectedItems.length === 0) {
+        alert("선택된 항목이 없습니다.");
+        return;
+      }
+
+      $.ajax({
+        type: "POST",
+        url: "/cart/delete",
+        data: { cartIds: selectedItems },
+        traditional: true,
+        success: function() {
+          selectedItems.forEach(cartId => {
+            $(`[data-cart-id='${cartId}']`).remove();
+          });
+          updateTotalPrice();
+          $(".checkbox-input").prop("checked", true);
+        },
+        error: function() {
+          alert("선택된 상품을 삭제하는 데 실패했습니다.");
+        }
+      });
+    });
+
+    $(document).on("change", ".checkbox-input", function () {
       updateTotalPrice();
     });
 
     function updateTotalPrice() {
-      let totalPrice = 0;
+      let totalAmount = 0;
       let totalQuantity = 0;
 
       $(".cart-item").each(function () {
@@ -454,15 +441,16 @@
         const price = parseInt($(this).find(".item-price strong").text().replace(/\D/g, ""));
 
         if (!isNaN(quantity) && !isNaN(price)) {
-          totalPrice += quantity * price;
+          totalAmount += quantity * price;
           totalQuantity += quantity;
         }
       });
 
-      $("#total-price").text(totalPrice.toLocaleString() + "원");
-      $("#total-final-price").text(totalPrice.toLocaleString() + "원");
-      $("#checkout-button span").text(`총 ${totalQuantity}개 / ${totalPrice.toLocaleString()}원 주문하기`);
+      $("#total-price").text(totalAmount.toLocaleString() + "원");
+      $("#total-final-price").text(totalAmount.toLocaleString() + "원");
+      $("#checkout-button span").text(`총 ${totalQuantity}개 / ${totalAmount.toLocaleString()}원 주문하기`);
     }
+
   });
 </script>
 </th:block>

@@ -8,34 +8,30 @@ import java.util.List;
 @Service
 public class CartService {
 
+    private final CartMapper cartMapper;
+
     @Autowired
-    private CartMapper cartMapper;
-
-    public List<CartVO> getCartItems(int userId) {
-        return cartMapper.getCartItems(userId);
+    public CartService(CartMapper cartMapper) {
+        this.cartMapper = cartMapper;
     }
 
-    public void addItemToCart(CartVO cartVO) {
-        cartMapper.addItemToCart(cartVO);
+    public List<CartVO> getCartItemsByUserId(long userId) {
+        return cartMapper.getCartItemsByUserId(userId); 
     }
 
-    public void updateCartItem(CartVO cartVO) {
-        cartMapper.updateCartItem(cartVO);
+    public void addToCart(CartVO cartVO) {
+        cartMapper.addToCart(cartVO); 
     }
 
-    public void deleteCartItem(int cartId) {
-        cartMapper.deleteCartItem(cartId);
+    public void updateCart(int cartId, int quantity) {
+        cartMapper.updateCart(cartId, quantity); 
     }
 
-    public List<CartVO> getSelectedCartItems(List<Integer> cartIds) {
-        return cartMapper.getSelectedCartItems(cartIds);
-    }
+    public void deleteFromCart(List<Integer> cartIds) {
+        cartMapper.deleteFromCart(cartIds);
+    }    
 
-    public double calculateTotalAmount(int userId) {
-        List<CartVO> cartItems = cartMapper.getCartItems(userId);
-        return cartItems.stream()
-                .mapToDouble(item -> item.getProductPrice() * item.getQuantity())
-                .sum();
+    public CartVO findCartItemByUserIdAndProductId(long userId, int productId) {
+        return cartMapper.findCartItemByUserIdAndProductId(userId, productId);
     }
-    
 }
