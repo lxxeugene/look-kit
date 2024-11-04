@@ -10,31 +10,16 @@ import java.util.List;
 
 @Mapper
 public interface OrderMapper {
-
-    @Insert("INSERT INTO orders (user_id, total_amount, order_status, order_comment, order_date, order_addressee, order_address, order_phone) VALUES (#{userId}, #{totalAmount}, #{orderStatus}, #{orderComment}, #{orderDate}, #{orderAddressee}, #{orderAddress}, #{orderPhone})")
-    @Options(useGeneratedKeys = true, keyProperty = "orderId")
-    void createOrder(OrderVO orderVO);
-    
     @Select("<script>" +
-            "SELECT o.order_id, oi.product_id, p.product_name, p.product_price, p.product_thumbnail, oi.quantity " +
-            "FROM orders o " +
-            "JOIN order_items oi ON o.order_id = oi.order_id " +
-            "JOIN products p ON oi.product_id = p.product_id " +
-            "WHERE o.order_id IN " +
-            "<foreach item='item' index='index' collection='orderIds' open='(' separator=',' close=')'>" +
-            "#{item}" +
-            "</foreach>" +
-            "</script>")
-    List<OrderDetailDTO> getOrderDetails(@Param("orderIds") List<Integer> orderIds);
+        "SELECT * FROM order_details WHERE product_id IN " +
+        "<foreach item='item' index='index' collection='selectedItems' open='(' separator=',' close=')'>" +
+        "#{item}" +
+        "</foreach>" +
+        "</script>")
+    List<OrderDetailDTO> getOrderDetails(@Param("selectedItems") List<Integer> selectedItems);
 
-    @Insert("INSERT INTO order_items (order_id, product_id, quantity) VALUES (#{orderId}, #{productId}, #{quantity})")
-    void createOrderDetail(OrderDetailDTO orderDetailDTO);
-
-
-
-    @Delete("DELETE FROM orders WHERE order_id = #{orderId}")
-    void deleteOrder(int orderId);
-
-    @Delete("DELETE FROM order_items WHERE order_id = #{orderId}")
-    void deleteOrderItems(int orderId);
+    @Insert("INSERT INTO orders (user_id, total_amount, order_status, order_comment, order_date, order_address, order_addressee, order_phone) VALUES (#{userId}, #{totalAmount}, 'pending', #{orderComment}, #{orderDate}, #{orderAddress}, #{orderAddressee}, #{orderPhone})")
+    void completeOrder(OrderVO orderVO); // 주문 정보 저장 쿼리 매핑
 }
+
+

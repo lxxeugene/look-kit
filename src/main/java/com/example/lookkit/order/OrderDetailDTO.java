@@ -2,16 +2,15 @@ package com.example.lookkit.order;
 
 import lombok.*;
 
-@Getter
-@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@Setter
 public class OrderDetailDTO {
-    private int orderId;
     private int productId;
-    private String productName;
-    private int productPrice;
-    private String productThumbnail;
     private int quantity;
+    private int productPrice;
+    private String productName;
+    private String brandName;
 }

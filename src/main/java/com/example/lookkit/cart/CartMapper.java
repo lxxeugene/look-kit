@@ -6,27 +6,25 @@ import java.util.List;
 @Mapper
 public interface CartMapper {
 
-    @Select("SELECT c.*, p.product_name, p.product_price, p.product_thumbnail " +
-            "FROM cart c " +
-            "JOIN products p ON c.product_id = p.product_id " +
-            "WHERE c.user_id = #{userId}")
-    List<CartVO> getCartItems(int userId);
+    @Select("SELECT * FROM cart WHERE user_id = #{userId}")
+    List<CartVO> getCartItemsByUserId(@Param("userId") long userId);  
 
     @Insert("INSERT INTO cart (user_id, product_id, quantity) VALUES (#{userId}, #{productId}, #{quantity})")
-    void addItemToCart(CartVO cartVO);
+    void addToCart(CartVO cartVO); 
 
     @Update("UPDATE cart SET quantity = #{quantity} WHERE cart_id = #{cartId}")
-    void updateCartItem(CartVO cartVO);
+    void updateCart(@Param("cartId") int cartId, @Param("quantity") int quantity); 
 
-    @Delete("DELETE FROM cart WHERE cart_id = #{cartId}")
-    void deleteCartItem(int cartId);
+    @Delete({
+        "<script>",
+        "DELETE FROM cart WHERE cart_id IN ",
+        "<foreach item='item' index='index' collection='cartIds' open='(' separator=',' close=')'>",
+        "#{item}",
+        "</foreach>",
+        "</script>"
+    })
+    void deleteFromCart(@Param("cartIds") List<Integer> cartIds); 
 
-    @Select("<script>" +
-            "SELECT * FROM cart WHERE cart_id IN " +
-            "<foreach item='cartId' collection='cartIds' open='(' separator=',' close=')'>" +
-            "#{cartId}" +
-            "</foreach>" +
-            "</script>")
-    List<CartVO> getSelectedCartItems(@Param("cartIds") List<Integer> cartIds);
+    @Select("SELECT * FROM cart WHERE user_id = #{userId} AND product_id = #{productId} LIMIT 1")
+    CartVO findCartItemByUserIdAndProductId(@Param("userId") long userId, @Param("productId") int productId);
 }
-
