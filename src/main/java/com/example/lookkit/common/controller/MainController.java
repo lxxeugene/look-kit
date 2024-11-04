@@ -49,7 +49,7 @@ public class MainController {
         return "/home/home.html";
     }
 
-
+    // 카테고리 별 상품 목록 표시
     @GetMapping("/main/category")
     public String mainCategoryPage(Model model, @RequestParam String type){
         System.out.println("카테고리: "+type);
