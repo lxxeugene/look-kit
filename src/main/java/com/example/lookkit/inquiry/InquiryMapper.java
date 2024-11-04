@@ -1,6 +1,7 @@
 package com.example.lookkit.inquiry;
 
 import com.example.lookkit.common.dto.InquiryImagesDTO;
+import com.example.lookkit.common.dto.InquiryUserDTO;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;
@@ -47,4 +48,23 @@ public interface InquiryMapper {
     @Select("Select ANSWER_ID, INQUIRY_ID, ANSWER_CREATED_AT, ANSWER_CONTENTS " +
             "FROM INQUIRIES_ANSWER WHERE INQUIRY_ID = #{inquiryId}")
     InquiryAnswerVO getAnswer(long inquiryId);
+
+
+    // 모든 유저의 문의목록 가져오기
+    @Select("SELECT i.inquiry_id, u.user_uuid AS userUuid, i.inquiry_title, i.inquiry_contents, " +
+            "i.inquiry_created_at, i.answer_state " +
+            "FROM inquiries i " +
+            "JOIN users u ON i.user_id = u.user_id " +
+            "ORDER BY i.inquiry_created_at DESC")
+    @Results({
+            @Result(property = "inquiryId", column = "inquiry_id"),
+            @Result(property = "userUuid", column = "userUuid"),  // userUuid로 매핑
+            @Result(property = "inquiryTitle", column = "inquiry_title"),
+            @Result(property = "inquiryContents", column = "inquiry_contents"),
+            @Result(property = "inquiryCreatedAt", column = "inquiry_created_at"),
+            @Result(property = "answerState", column = "answer_state")
+    })
+    List<InquiryUserDTO> getAllInquiries();
+
+
 }
