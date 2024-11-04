@@ -1,11 +1,9 @@
 package com.example.lookkit.order;
 
+import com.example.lookkit.common.dto.UserOrderDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.example.lookkit.product.ProductVO;
-import com.example.lookkit.product.ProductMapper;
-import com.example.lookkit.cart.CartService;
-import com.example.lookkit.cart.CartVO;
+
 import java.util.List;
 
 @Service
@@ -25,4 +23,18 @@ public class OrderService {
     public void completeOrder(OrderVO orderVO) {
         orderMapper.completeOrder(orderVO); // 주문 정보 저장하기
     }
+
+
+
+    public List<UserOrderDTO> orderAllListWithUserUuid(){
+        return orderMapper.getAllOrdersWithUserUuid();
+    }
+
+
+    public int updateOrderStatus(int orderId,String orderStatus){
+        return orderMapper.updateOrderStatus(orderId,orderStatus);
+    }
+
+
+
 }
