@@ -64,4 +64,22 @@ public class InquiryService {
     public List<InquiryUserDTO> getInquiryAllList() {
       return  dao.getAllInquiries();
     }
+
+    public InquiryUserDTO findByInquiryId(int id) {
+        InquiryUserDTO inquiry = dao.findByInquiryId(id);
+        return inquiry;
+    }
+
+    //문의 답변하기 + 답변완료 변경
+    public int insertInquiryAnswer(InquiryAnswerVO answerVO) {
+
+        int insertResult =  dao.insertAnswer(answerVO);
+        if (insertResult > 0) {
+            dao.updateInquiryAnswerState(answerVO.getInquiryId());
+        }
+        return insertResult;
+    }
+
+
+
 }

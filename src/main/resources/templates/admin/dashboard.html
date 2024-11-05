@@ -14,7 +14,7 @@
 <body class="sb-nav-fixed">
 <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
     <!-- Navbar Brand-->
-    <a class="navbar-brand ps-3" href="index.html">ADMIN PAGE</a>
+    <a class="navbar-brand ps-3" th:href="@{/admin/dashboard}">ADMIN PAGE</a>
     <!-- Sidebar Toggle-->
     <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!"><i class="fas fa-bars"></i></button>
     <!-- Navbar Search-->
@@ -43,7 +43,7 @@
             <div class="sb-sidenav-menu">
                 <div class="nav">
                     <div class="sb-sidenav-menu-heading">Core</div>
-                    <a class="nav-link" href="index.html">
+                    <a class="nav-link" th:href="@{/admin/dashboard}">
                         <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
                         Dashboard
                     </a>
@@ -97,7 +97,7 @@
                     </a>
                     <a class="nav-link" th:href="@{/admin/orderStatus}">
                         <div class="sb-nav-link-icon"><i class="fas fa-table"></i></div>
-                        Tables
+                        주문현황
                     </a>
                 </div>
             </div>
@@ -190,22 +190,12 @@
                                 <th>삭제</th>
                             </tr>
                             </thead>
-                            <tfoot>
-                            <tr>
-                                <th>Name</th>
-                                <th>Position</th>
-                                <th>Office</th>
-                                <th>Age</th>
-                                <th>Start date</th>
-                                <th>Salary</th>
-                            </tr>
-                            </tfoot>
                             <tbody >
                             <tr th:each="list :${inquiryList}">
                                 <td th:text="|${list.inquiryId}|">교환번호</td> <!-- inquiryTitle 출력 -->
-                                <td th:text="|${list.userUuid}|">user11</td> <!-- userUuid 출력 -->
-                                <td th:text="|${list.inquiryTitle}|">교환문의</td> <!-- inquiryTitle 출력 -->
-                                <td th:text="|${list.inquiryContents}|">교환 가능할까요</td> <!-- inquiryContents 출력 -->
+                                <td ><a class="answer-link"  th:text="${list.userUuid}" th:href="@{/admin/answer/{inquiryId}(inquiryId=${list.inquiryId})}">user11</a></td> <!-- userUuid 출력 -->
+                                <td ><a class="answer-link"  th:text="${list.inquiryTitle}" th:href="@{/admin/answer/{inquiryId}(inquiryId=${list.inquiryId})}">교환문의</a></td> <!-- inquiryTitle 출력 -->
+                                <td ><a class="answer-link"  th:text="${list.inquiryContents}" th:href="@{/admin/answer/{inquiryId}(inquiryId=${list.inquiryId})}">교환 가능할까요</a></td> <!-- inquiryContents 출력 -->
                                 <td th:text="${#temporals.format(list.inquiryCreatedAt, 'yyyy/MM/dd')}">2024/11/04</td> <!-- inquiryCreatedAt 날짜 형식 -->
                                 <td th:text="|${list.answerState}|">N</td> <!-- answerState 출력 -->
                                 <td >삭제</td> <!-- answerState 출력 -->

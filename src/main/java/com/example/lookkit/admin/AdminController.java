@@ -2,6 +2,7 @@ package com.example.lookkit.admin;
 
 import com.example.lookkit.common.dto.InquiryUserDTO;
 import com.example.lookkit.common.dto.UserOrderDTO;
+import com.example.lookkit.inquiry.InquiryAnswerVO;
 import com.example.lookkit.inquiry.InquiryService;
 import com.example.lookkit.order.OrderService;
 import lombok.RequiredArgsConstructor;
@@ -64,8 +65,27 @@ public class AdminController {
             response.put("success", false);
             response.put("message", "오류 발생: " + e.getMessage());
         }
-
         return response;
+    }
+
+    @GetMapping("/answer/{id}")
+    public String answer(@PathVariable int id,Model model){
+        System.out.println("전달받은 문의번호"+id);
+        model.addAttribute("inquiry" , is.findByInquiryId(id));
+       InquiryAnswerVO answer =is.getAnswer(id);
+        if (answer != null) {
+            model.addAttribute("answer", answer);
+        } else {
+            model.addAttribute("answer",null);
+        }
+        return "/admin/inquiryAnswer";
+    }
+
+    @PostMapping("/answer")
+    public String submitAnswer(InquiryAnswerVO answerVO){
+        int result =   is.insertInquiryAnswer(answerVO);
+        System.out.println( result>0 ? "답변완료":"답변에러");
+        return "redirect:/admin/dashboard";
     }
 
 
