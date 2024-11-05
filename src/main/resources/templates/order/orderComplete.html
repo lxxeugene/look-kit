@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="common/layout/base"> 
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Complete Page</title>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.iamport.kr/js/iamport.payment-1.2.0.js"></script>
+  <link rel="stylesheet" th:href="@{/css/header.css}"/>
+  <link rel="stylesheet" th:href="@{/css/sidebar.css}"/>
+  <link rel="stylesheet" th:href="@{/css/orderComplete.css}"/>
+  <script th:src="@{/js/orderComplete.js}"></script>
+</head>
+<body>
+  <th:block layout:fragment="content">
+  <div class="order-complete">
+    <div class="order-info">
+      <div class="order-header">
+        <div class="heading">
+          <div class="order-complete-text">주문이 완료되었습니다</div>
+        </div>
+        <div class="order-number-container">
+          <div class="order-number-wrapper">
+            <div class="order-number">주문번호: <span id="order-id"></span></div>
+          </div>
+        </div>
+        <div class="order-links">
+          <button class="button view-order-link">
+            <span>구매내역 보기</span>
+          </button>
+          <button class="button home-link">
+            <span>쇼핑 홈 가기</span>
+          </button>
+        </div>
+      </div>
+      <div class="product-info">
+        <div class="product-header">
+          <div class="product-title">상품 정보</div>
+        </div>
+        <div class="product-list" id="product-list">
+          <!-- 상품 정보가 여기에 추가됩니다 -->
+        </div>
+      </div>
+      <div class="shipping-info">
+        <div class="shipping-header">
+          <div class="shipping-info-title">배송지 정보</div>
+        </div>
+        <div class="shipping-table">
+            <div class="shipping-row">
+              <div class="shipping-cell">배송지명</div>
+              <div class="shipping-data">
+                <span class="span shipping-value" id="shipping-address-name"></span>
+              </div>
+            </div>
+            <div class="shipping-row">
+              <div class="shipping-cell">받는 사람</div>
+              <div class="shipping-data">
+                <span class="span shipping-value" id="shipping-recipient-name"></span>
+              </div>
+            </div>
+            <div class="shipping-row">
+              <div class="shipping-cell">휴대폰번호</div>
+              <div class="shipping-data">
+                <span class="span shipping-value" id="shipping-phone-number"></span>
+              </div>
+            </div>
+            <div class="shipping-row">
+              <div class="shipping-cell">주소</div>
+              <div class="shipping-data">
+                <span class="span shipping-value" id="shipping-address"></span>
+              </div>
+            </div>
+        </div>
+      </div>
+      <div class="payment-info">
+        <div class="payment-table">
+          <div class="payment-header">
+          <div class="payment-info-title">결제 정보</div>
+        </div><div class="payment-body">
+            <div class="payment-row">
+              <div class="payment-cell">결제수단</div>
+              <div class="payment-data">
+                <span class="span payment-value" id="payment-method"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="final-payment">
+          <div class="final-payment-header">
+            <div class="final-payment-title">최종 결제금액</div>
+          </div>
+          <div class="final-payment-border">
+            <div class="final-payment-table">
+              <div class="final-payment-body">
+                <div class="final-payment-row">
+                  <div class="final-payment-cell">총 상품금액</div>
+                  <div class="final-payment-data">
+                    <span class="span final-payment-amount" id="total-amount"></span>
+                  </div>
+                </div>
+              </div>
+              <div class="final-payment-footer">
+                <div class="final-payment-row">
+                  <div class="final-payment-cell">최종 결제금액</div>
+                  <div class="final-payment-data">
+                    <span class="span final-payment-amount" id="final-amount"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</th:block>
+</body>
+</html>

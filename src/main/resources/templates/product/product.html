@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="common/layout/base"> 
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Page</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <link rel="stylesheet" th:href="@{/css/header.css}"/>
+  <link rel="stylesheet" th:href="@{/css/sidebar.css}"/>
+  <link rel="stylesheet" th:href="@{/css/product.css}"/>
+  <script th:src="@{/js/product.js}"></script>
+</head>
+<body>
+  <th:block layout:fragment="content">
+  <div class="container">
+    <div class="image-section">
+      <img th:src="@{|/images/products/0${product.productId}/${product.productId}_detail_1.webp|}" alt="상품썸네일" />
+    </div>
+    <div class="details-section">
+      <div>
+        <div class="brand" th:text="${product.brandName}"></div>
+        <div class="product-title" th:text="${product.productName}"></div>
+        <div class="price-section">
+          <span class="price" id="price" th:text="${product.productPrice} + '원'"></span>
+        </div>
+        <div class="quantity-section">
+          <label for="quantity" class="quantity-label">수량:</label>
+          <input type="number" id="quantity" class="quantity-input" value="1" min="1">
+        </div>
+      </div>
+      <div class="buttons">
+        <a href="#" id="cart-link" class="btn btn-cart">장바구니</a>
+        <a href="#" id="buy-link" class="btn btn-buy">구매하기</a>
+      </div>
+    </div>
+  </div>
+  <div class="container2">
+    <div class="container">
+      <div class="tab-section">
+        <div class="active" data-target="details">상세정보</div>
+        <div data-target="reviews">리뷰</div>
+        <div data-target="qna">상품 Q&A</div>
+        <div data-target="seller">판매자 정보</div>
+      </div>
+    </div>
+    <div class="container">
+      <div class="tab-content active" id="details">
+        <img th:src="@{'/images/products/0'+${product.productId}+'/'+${product.productId}+'_detail_1.webp'}" alt="상품사진1" />
+        <img th:src="@{'/images/products/0'+${product.productId}+'/'+${product.productId}+'_detail_2.webp'}" alt="상품사진2" />
+        <img th:src="@{'/images/products/0'+${product.productId}+'/'+${product.productId}+'_detail_3.webp'}" alt="상품사진3" />
+        <img th:src="@{'/images/products/0'+${product.productId}+'/'+${product.productId}+'_detail_4.webp'}" alt="상품사진4" />
+      </div>
+      <div class="tab-content" id="reviews">
+        <div class="review-filters">
+            <button class="filter-button" onclick="sortReviews('latest')">최신순</button>
+            <button class="filter-button" onclick="sortReviews('highRating')">별점 높은 순</button>
+            <button class="filter-button" onclick="sortReviews('lowRating')">별점 낮은 순</button>
+        </div>
+        <div th:if="${#lists.isEmpty(reviews)}">
+            <p>작성된 리뷰가 없습니다.</p>
+        </div>
+        <div th:each="review : ${reviews}" class="review-list">
+            <div class="review-item">
+                <div class="review-header">
+                    <span class="review-rating" th:text="${review.rating} + '점'">5점</span>
+                    <span class="review-user" th:text="${review.userId}">유저 아이디</span>
+                    <span class="review-date" th:text="${#temporals.format(review.createdAt, 'yy.MM.dd')}">24.10.08</span>
+                </div>
+                <div class="review-content">
+                    <p th:text="${review.reviewText}">리뷰 내용</p>
+                </div>
+            </div>
+        </div>
+      </div>
+      <div class="tab-content" id="qna">
+        <p>상품 Q&A 내용이 여기에 표시됩니다.</p>
+      </div>
+      <div class="tab-content" id="seller">
+        <p>판매자 정보가 여기에 표시됩니다.</p>
+      </div>
+    </div>
+  </div>
+  <div class="bottom-fixed-bar">
+    <div class="product-info">
+      <img th:src="@{'/images/products/0'+${product.productId}+'/'+${product.productId}+'_thumbnail.webp'}" alt="상품 이미지">
+      <div class="product-description" th:text="${product.productName}">[단독~10.6][10/10예약발송]SITP5162 루즈핏 포멀 ST 셔츠_Light blue ST</div>
+    </div>
+    <div class="quantity-section">
+      <label for="quantity-bottom" class="quantity-label">수량:</label>
+      <input type="number" id="quantity-bottom" class="quantity-input" value="1" min="1">
+    </div>
+    <div class="total-price" id="total-price" th:text="'총 상품 금액 ' + ${product.productPrice} * 1 + '원'">총 상품 금액 58,302원</div>
+    <div class="buttons">
+      <a href="#" id="cart-link-bottom" class="btn btn-cart">장바구니</a>
+      <a href="#" id="buy-link-bottom" class="btn btn-buy">구매하기</a>
+    </div>
+  </div>
+  </th:block>
+</body>
+</html>

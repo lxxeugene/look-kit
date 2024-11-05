@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns="" lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>리뷰 관리</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <link rel="stylesheet" th:href="@{/css/header.css}"/>
+  <link rel="stylesheet" th:href="@{/css/sidebar.css}"/>
+  <link rel="stylesheet" th:href="@{/css/review.css}"/>
+</head>
+<body>
+  <th:block th:replace="~{common/fragments/header :: headerFragment}"></th:block>
+  <div class="review-container">
+    <th:block th:replace="~{common/fragments/userHeader :: userHeaderFragment}"></th:block>
+    <div class="side-and-main">
+      <!-- 사이드바 추가 -->
+      <th:block th:replace="~{common/fragments/sidebar :: sidebarFragment}"></th:block>
+      <div class="review-section">
+        <h2>리뷰 관리</h2>
+        <div class="review-tabs">
+          <div class="tab active" id="writable-review-tab" onclick="showWritableReviews()">작성 가능한 리뷰</div>
+          <div class="tab" id="written-review-tab" onclick="showWrittenReviews()">작성한 리뷰</div>
+        </div>
+        <div id="writable-reviews" class="review-list">
+          <div th:each="review : ${writableReviews}" class="review-item">
+            <div class="product-info">
+              <img th:src="@{/images/products/} + ${review.productThumbnail}" alt="상품 이미지">
+            </div>
+            <div class="review-form">
+              <div class="order-section">
+                <label>주문 번호:</label>
+                <select th:field="*{orderid}">
+                  <option th:each="order : ${orders}" th:value="${order.id}" th:text="${order.id}"></option>
+                </select>
+              </div>
+              <div class="rating-section">
+                <label>평점:</label>
+                <select th:field="*{rating}">
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                  <option value="5">5</option>
+                </select>
+              </div>
+              <textarea placeholder="리뷰를 작성해주세요" th:field="*{reviewText}"></textarea>
+              <button type="button" class="submit-review" th:onclick="@{/reviews/submit/{productId}(productId=${review.productId})}">리뷰 작성하기</button>
+            </div>
+          </div>
+        </div>
+        <div id="written-reviews" class="review-list" style="display:none;">
+          <div th:if="${#lists.isEmpty(writtenReviews)}" class="empty-message">
+            작성한 리뷰가 없습니다
+          </div>
+          <div th:each="review : ${writtenReviews}" class="review-item">
+            <div class="review-content">
+              <p th:text="${review.reviewText}"></p>
+              <div class="rating-display">
+                <span th:text="'평점: ' + ${review.rating}"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

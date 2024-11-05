@@ -1,5 +1,9 @@
 package com.example.lookkit.order;
 
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
+
 import lombok.*;
 
 @Builder
@@ -11,9 +15,13 @@ public class OrderVO {
     private int orderId;
     private long userId;
     private int totalAmount;
+    private String orderStatus;
     private String orderComment;
-    private String orderDate;
+    private Timestamp orderDate;
     private String orderAddress;
     private String orderAddressee;
     private String orderPhone;
+    private List<OrderDetailVO> orderDetails = new ArrayList<>();  
 }
+
+
