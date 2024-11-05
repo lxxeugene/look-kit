@@ -1,6 +1,7 @@
 package com.example.lookkit.inquiry;
 
 import com.example.lookkit.common.dto.InquiryImagesDTO;
+import com.example.lookkit.common.dto.InquiryUserDTO;
 import com.example.lookkit.common.util.FileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -58,4 +59,27 @@ public class InquiryService {
     public InquiryAnswerVO getAnswer(long inquiryId) {
         return dao.getAnswer(inquiryId);
     }
+
+
+    public List<InquiryUserDTO> getInquiryAllList() {
+      return  dao.getAllInquiries();
+    }
+
+    public InquiryUserDTO findByInquiryId(int id) {
+        InquiryUserDTO inquiry = dao.findByInquiryId(id);
+        return inquiry;
+    }
+
+    //문의 답변하기 + 답변완료 변경
+    public int insertInquiryAnswer(InquiryAnswerVO answerVO) {
+
+        int insertResult =  dao.insertAnswer(answerVO);
+        if (insertResult > 0) {
+            dao.updateInquiryAnswerState(answerVO.getInquiryId());
+        }
+        return insertResult;
+    }
+
+
+
 }

@@ -24,6 +24,7 @@ public class MyUserDetailsService implements UserDetailsService {
 
         List<GrantedAuthority> userAuthorities = new ArrayList<>();
         if(user.getRole().equals("ADMIN")){
+            System.out.println("관리자 계정으로 확인됩니다.");
             userAuthorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
         }else {
             userAuthorities.add(new SimpleGrantedAuthority("ROLE_USER"));

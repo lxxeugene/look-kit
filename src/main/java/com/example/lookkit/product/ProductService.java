@@ -1,7 +1,5 @@
 package com.example.lookkit.product;
 
-import lombok.RequiredArgsConstructor;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,10 +20,10 @@ public class ProductService {
     }
 
     public List<ProductVO> getProductsByCategory(String type) {
-        throw new UnsupportedOperationException("Unimplemented method 'getProductsByCategory'");
+        return productMapper.getProductsByCategoryType(type);
     }
 
     public List<ProductVO> searchProductsByKeyword(String keyword) {
-        throw new UnsupportedOperationException("Unimplemented method 'searchProductsByKeyword'");
+        return productMapper.searchProductsByKeyword(keyword);
     }
 }

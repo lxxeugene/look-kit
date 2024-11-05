@@ -4,7 +4,6 @@ import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
 
@@ -22,6 +21,25 @@ public interface ProductMapper {
     // 상품 이름으로 검색
     @Select("SELECT * FROM PRODUCTS WHERE PRODUCT_NAME LIKE CONCAT('%', #{productName}, '%')")
     List<ProductVO> searchByName(String productName);
+    @Select("SELECT * FROM products WHERE product_id = #{productId}")
+    ProductVO getProductById(int productId);
+
+
+
+    @Select("SELECT p.* " +
+            "FROM products p " +
+            "JOIN categories c ON p.category_id = c.category_id " +
+            "WHERE c.category_type = #{categoryType}")
+    List<ProductVO> getProductsByCategoryType(String categoryType);
+
+    // 키워드로 상품명 or 설명에서 검색
+    @Select("SELECT * FROM products " +
+            "WHERE product_name " +
+            "LIKE CONCAT('%', #{keyword}, '%') " +
+            "OR product_description " +
+            "LIKE CONCAT('%', #{keyword}, '%')")
+    List<ProductVO> searchProductsByKeyword(String keyword);
+
 }
 
 

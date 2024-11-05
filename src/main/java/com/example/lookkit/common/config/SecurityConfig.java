@@ -1,9 +1,12 @@
 package com.example.lookkit.common.config;
 
+import com.example.lookkit.user.CustomLoginSuccessHandler;
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -14,15 +17,16 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf((csrf) -> csrf.disable());
         http.authorizeHttpRequests((authorize) ->
-//                authorize.requestMatchers("/**").permitAll() // 모든 페이지 허용
-              authorize.requestMatchers("/", "/auth/**","/fail","/product/**","/common/**","/main/**","/error/**","/fail/**","/css/**", "/js/**", "/images/**","/mailsender").permitAll() // 모두에게 허용되도록 설정
-                      .requestMatchers("/mypage/**").authenticated() // 마이페이지 로그인회원만 접근가능
+//            authorize.requestMatchers("/**").permitAll() // 모든 페이지 허용
+              authorize.requestMatchers( "/auth/**","/fail","/product/**","/common/**","/main/**","/error/**","/fail/**","/mailsender").permitAll() // 모두에게 허용되도록 설정
+                      .requestMatchers("/admin/**").hasRole("ADMIN") // 관리자페이지 "ADMIN" 권한 필요
                       .anyRequest().authenticated() // 그 외의 모든 요청도 인증된 사용자만 접근 가능하도록 설정
         );
         http.formLogin((formLogin) -> formLogin
                 .loginPage("/auth/login")
                 .loginProcessingUrl("/auth/login")
-                .defaultSuccessUrl("/main")
+//                .defaultSuccessUrl("/main")
+                .successHandler(new CustomLoginSuccessHandler()) // 커스텀 성공 핸들러 설정
                 .failureUrl("/auth/login?error")
         );
 
@@ -35,4 +39,18 @@ public class SecurityConfig {
          );
         return http.build();
     }
+
+
+
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return web -> web.ignoring()
+                // 정적 리소스에 대해 시큐리티 필터 제외 설정
+                .requestMatchers(PathRequest.toStaticResources().atCommonLocations())
+                // 특정 HTML 파일 및 HTML 디렉토리 내부 파일에 대해 인증 및 권한 검사 무시
+                .requestMatchers("/*.html", "/html/**");
+    }
+
+
+
 }
