@@ -35,7 +35,7 @@ public class ProductController {
     public String getProductDetails(@PathVariable int productId, Model model) {
         ProductVO product = productService.getProductById(productId);
         model.addAttribute("product", product);
-        return "product"; 
+        return "product/product"; 
     }
 
     @PostMapping("/add")

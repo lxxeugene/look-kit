@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="common/layout/base"> 
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cart Page</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <link rel="stylesheet" th:href="@{/css/header.css}"/>
+  <link rel="stylesheet" th:href="@{/css/sidebar.css}"/>
+  <link rel="stylesheet" th:href="@{/css/cart.css}"/>
+  <script th:src="@{/js/cart.js}"></script>
+</head>
+<body>
+  <th:block layout:fragment="content">
+    <div class="cart-container">
+      <div class="cart-title">
+        <h2>장바구니</h2>
+      </div>
+      <div class="cart-header">
+        <h3>상품 정보</h3>
+        <div class="cart-actions">
+          <button class="select-delete-button" id="delete-selected-button">
+            <img class="icon-delete" src="/images/icon/icon-delete.svg">
+            <span>선택삭제</span>
+          </button>
+      </div>
+      
+      
+    </div>
+  
+          <div class="cart-item-list">
+        <!-- 장바구니 항목이 여기 추가됩니다 -->
+          </div>
+          <div class="cart-summary">
+        <div class="summary-header">
+          <h3>최종 결제 예상 금액</h3>
+        </div>
+        <div class="summary-details">
+          <div class="summary-item">
+              <span>총 상품금액</span>
+              <strong id="total-price">0원</strong> 
+          </div>
+          <div class="summary-item">
+              <span>최종 결제 예상 금액</span>
+              <strong id="total-final-price">0원</strong> 
+          </div>
+        </div>
+        <div class="checkout-button-container">
+          <button class="checkout-button" id="checkout-button">
+              <span>총 0개 / 0원 주문하기</span>
+              <img class="checkout-icon">
+          </button>
+        </div>
+      </div>
+</th:block>
+</body>
+</html>

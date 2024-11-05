@@ -27,7 +27,7 @@ public class CartController {
 
     @GetMapping
     public String getCartPage(Model model, Authentication authentication) {
-        return "cart";
+        return "cart/cart";
     }
 
     @GetMapping("/items")
@@ -47,7 +47,7 @@ public class CartController {
     @PostMapping("/delete")
     public String deleteFromCart(@RequestParam("cartIds") List<Integer> cartIds) {
         cartService.deleteFromCart(cartIds);
-        return "redirect:/cart";
+        return "redirect:/cart/cart";
     }
 
     @GetMapping("/checkout")

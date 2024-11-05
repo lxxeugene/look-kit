@@ -3,18 +3,14 @@ package com.example.lookkit.order;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Options;
-import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
-
-import com.example.lookkit.product.ProductVO;
-
-import org.apache.ibatis.annotations.Delete;
 import java.util.List;
 
 @Mapper
 public interface OrderMapper {
 
-    @Insert("INSERT INTO ORDERS (USER_ID, TOTAL_AMOUNT) VALUES (#{userId}, #{totalAmount})")
+    @Insert("INSERT INTO ORDERS (USER_ID, TOTAL_AMOUNT, ORDER_DATE, ORDER_STATUS, ORDER_ADDRESSEE, ORDER_ADDRESS, ORDER_PHONE) " +
+            "VALUES (#{userId}, #{totalAmount}, #{orderDate}, #{orderStatus}, #{orderAddressee}, #{orderAddress}, #{orderPhone})")
     @Options(useGeneratedKeys = true, keyProperty = "orderId")
     void insertOrder(OrderVO orderVO);
 
@@ -33,6 +29,8 @@ public interface OrderMapper {
     @Insert("INSERT INTO ADDRESS_BOOK (USER_ID, ADDRESS_NAME, ADDRESS) VALUES (#{userId}, #{addressName}, #{address})")
     void insertAddress(AddressVO addressVO);
 }
+
+
 
 
 

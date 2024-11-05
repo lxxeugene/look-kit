@@ -19,8 +19,12 @@ public class OrderService {
     }
 
     public void completeOrder(OrderVO orderVO) {
+        // ORDERS 테이블에 주문 정보 저장
         orderMapper.insertOrder(orderVO);
+
+        // ORDER_ITEMS 테이블에 각 주문 항목 저장
         for (OrderDetailVO detail : orderVO.getOrderDetails()) {
+            detail.setOrderId(orderVO.getOrderId()); // ORDER_ID 설정
             orderMapper.insertOrderDetail(detail);
         }
     }
