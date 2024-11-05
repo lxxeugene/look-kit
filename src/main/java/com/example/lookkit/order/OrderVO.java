@@ -1,6 +1,7 @@
 package com.example.lookkit.order;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 
 import lombok.*;
@@ -20,6 +21,7 @@ public class OrderVO {
     private String orderAddress;
     private String orderAddressee;
     private String orderPhone;
-   private List<OrderDetailVO> orderDetails;
+    private List<OrderDetailVO> orderDetails = new ArrayList<>();  
 }
+
 

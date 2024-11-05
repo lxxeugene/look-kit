@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.sql.Timestamp;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -50,6 +49,7 @@ public class OrderController {
         long userId = user.getUserId();
         List<OrderDetailDTO> orderItems = new ArrayList<>();
 
+        // 상품 정보를 localStorage 또는 cartDB에서 가져옴
         if (productId != null && quantity != null) {
             ProductVO product = productService.getProductById(productId);
             if (product != null) {
@@ -57,7 +57,7 @@ public class OrderController {
                 orderItems.add(orderDetail);
             }
         } else {
-            List<CartVO> cartItems = cartService.getCartItemsByUserId(user.getUserId());
+            List<CartVO> cartItems = cartService.getCartItemsByUserId(userId);
             if (!cartItems.isEmpty()) {
                 orderItems = cartItems.stream()
                         .map(cart -> new OrderDetailDTO(cart.getProductId(), cart.getProductName(), cart.getBrandName(), cart.getQuantity(), cart.getProductPrice()))
@@ -70,34 +70,42 @@ public class OrderController {
             return "cart/cart";
         }
 
+        // 기본 배송지 정보 로드
+        AddressVO userAddress = orderService.getUserAddress(userId);
+        model.addAttribute("userAddress", userAddress != null ? userAddress : new AddressVO());
+
         int totalAmount = orderItems.stream().mapToInt(item -> item.getProductPrice() * item.getQuantity()).sum();
         model.addAttribute("orderItems", orderItems);
         model.addAttribute("totalAmount", totalAmount);
-        AddressVO userAddress = orderService.getUserAddress(user.getUserId());
-        model.addAttribute("userAddress", userAddress != null ? userAddress : new AddressVO());
 
         return "order/order";
     }
 
+    // 결제 완료 후 처리 (주문 정보 저장 및 페이지 이동)
     @PostMapping("/complete")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> completeOrder(@RequestBody OrderVO orderVO, Authentication authentication) {
-        CustomUser user = (CustomUser) authentication.getPrincipal();
-        long userId = user.getUserId();
-        orderVO.setUserId(user.getUserId());
+    CustomUser user = (CustomUser) authentication.getPrincipal();
+    long userId = user.getUserId();
+    orderVO.setUserId(userId);
+    orderVO.setOrderDate(new Timestamp(System.currentTimeMillis()));
+    orderVO.setOrderStatus("pending");
 
-
-        orderVO.setOrderDate(new Timestamp(System.currentTimeMillis()));
-        orderVO.setOrderStatus("pending");
-
-        // 주문 저장
-        orderService.completeOrder(orderVO);
-
-        Map<String, Object> response = new HashMap<>();
-        response.put("orderId", orderVO.getOrderId());
-        return ResponseEntity.ok(response);
+    // 주문 상세 정보 확인 및 초기화
+    if (orderVO.getOrderDetails() == null) {
+        orderVO.setOrderDetails(new ArrayList<>());
     }
 
+    // 주문 저장
+    orderService.completeOrder(orderVO);
+
+    Map<String, Object> response = new HashMap<>();
+    response.put("orderId", orderVO.getOrderId());
+    return ResponseEntity.ok(response);
+}
+
+
+    // 주문 완료 페이지
     @GetMapping("/orderComplete")
     public String orderCompletePage(@RequestParam("orderId") int orderId, Model model) {
         OrderVO order = orderService.getOrderById(orderId);
@@ -120,7 +128,7 @@ public class OrderController {
         response.put("orderDetails", orderDetails);
         return ResponseEntity.ok(response);
     }
-
+    
     @GetMapping("/addAddress")
     public String addAddressPage() {
         return "order/addAddress";
@@ -131,9 +139,10 @@ public class OrderController {
         CustomUser user = (CustomUser) authentication.getPrincipal();
         addressVO.setUserId(user.getUserId());
         orderService.saveAddress(addressVO);
-        return "redirect:/order/order";
+        return "redirect:/order";
     }
 }
 
 
 
+   

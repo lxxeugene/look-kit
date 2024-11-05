@@ -3,14 +3,11 @@ $(document).ready(function () {
     const quantity = localStorage.getItem("quantity");
 
     if (productId && quantity) {
-        // Product 페이지에서 바로 구매하기 버튼을 클릭한 경우
         loadProductOrder(productId, quantity);
     } else {
-        // Cart 페이지에서 구매하기 버튼을 클릭한 경우
         loadCartOrder();
     }
 
-    // 상품 정보를 로드하여 주문 페이지에 렌더링하는 함수 (Product 페이지에서 바로 구매 시나리오)
     function loadProductOrder(productId, quantity) {
         $.ajax({
             type: "GET",
@@ -30,7 +27,6 @@ $(document).ready(function () {
                 };
                 renderOrderItems([orderItem]);
 
-                // LocalStorage 정보 삭제 (주문이 제대로 로드된 후 삭제)
                 localStorage.removeItem("productId");
                 localStorage.removeItem("quantity");
             },
@@ -40,7 +36,6 @@ $(document).ready(function () {
         });
     }
 
-    // 장바구니 정보를 로드하여 주문 페이지에 렌더링하는 함수 (Cart 페이지에서 구매 시나리오)
     function loadCartOrder() {
         $.ajax({
             type: "GET",
@@ -59,10 +54,8 @@ $(document).ready(function () {
         });
     }
 
-    // 주문 항목을 렌더링하는 함수
     function renderOrderItems(items) {
-        $("#product-list").empty(); // 이전에 추가된 항목들을 제거하고 새로 추가
-
+        $("#product-list").empty();
         items.forEach(item => {
             if (!item.productId || !item.productName || !item.productPrice) {
                 console.warn("잘못된 데이터:", item);
@@ -90,7 +83,6 @@ $(document).ready(function () {
             `);
         });
 
-        // 총 가격과 총 수량을 계산하여 화면에 표시
         let totalPrice = items.reduce((sum, item) => sum + (item.productPrice * item.quantity), 0);
         let totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
         $(".summary-value").text(totalPrice.toLocaleString() + "원");
@@ -98,77 +90,93 @@ $(document).ready(function () {
     }
 
     // 결제 버튼 클릭 이벤트
-  $("#pay-button").click(function () {
-    let orderName = $("#product-list .product-item:first .product-name").text();
-    let buyerName = $("#buyer-recipient-name").val();
-    let buyerTel = $("#buyer-phone-number").val();
-    let buyerAddr = $("#buyer-address").val();
-    let totalAmount = parseInt($(".summary-value").text().replace(/\D/g, ""));
+    $("#pay-button").click(function () {
+        let orderName = $("#product-list .product-item:first .product-name").text();
+        let buyerName = $("#buyer-recipient-name").val();
+        let buyerTel = $("#buyer-phone-number").val();
+        let buyerAddr = $("#buyer-address").val();
+        let totalAmount = parseInt($(".summary-value").text().replace(/\D/g, ""));
 
-    if (!$("input[name='payment-method']:checked").val()) {
-      alert("결제 수단을 선택해주세요.");
-      return;
-    }
-
-    if (!$("input[name='agreement1']").is(":checked") ||
-        !$("input[name='agreement2']").is(":checked") ||
-        !$("input[name='agreement3']").is(":checked") ||
-        !$("input[name='final-agreement']").is(":checked")) {
-      alert("모든 필수 동의 항목에 체크해주세요.");
-      return;
-    }
-
-    IMP.init("imp40354073");
-  
-    IMP.request_pay({
-        pg: 'kcp',
-        pay_method: 'card',
-        merchant_uid: 'merchant_' + new Date().getTime(),
-        name: orderName,
-        amount: totalAmount,
-        buyer_name: buyerName,
-        buyer_tel: buyerTel,
-        buyer_addr: buyerAddr
-    }, function (rsp) {
-        if (rsp.success) {
-            alert("결제가 완료되었습니다.\n고유ID: " + rsp.imp_uid);
-
-            
-            const paymentData = {
-              userId: userId, 
-              orderName: orderName,
-              totalAmount: totalAmount,
-              orderAddress: buyerAddr,
-              orderAddressee: buyerName,
-              orderPhone: buyerTel
-        
-            };
-            
-            $.ajax({
-              type: "POST",
-              url: "/order/orderComplete",
-              contentType: "application/json",
-              data: JSON.stringify(paymentData),
-              success: function() {
-                location.href = "/order/orderComplete";
-              },
-              error: function() {
-                alert("결제를 완료하는 데 실패했습니다.");
-              }
-            });
-        } else {
-            alert("결제에 실패했습니다. 실패사유: " + rsp.error_msg);
+        if (!$("input[name='payment-method']:checked").val()) {
+            alert("결제 수단을 선택해주세요.");
+            return;
         }
+
+        if (!$("input[name='agreement1']").is(":checked") ||
+            !$("input[name='agreement2']").is(":checked") ||
+            !$("input[name='agreement3']").is(":checked") ||
+            !$("input[name='final-agreement']").is(":checked")) {
+            alert("모든 필수 동의 항목에 체크해주세요.");
+            return;
+        }
+
+        IMP.init("imp40354073");
+
+        IMP.request_pay({
+            pg: 'kcp',
+            pay_method: 'card',
+            merchant_uid: 'merchant_' + new Date().getTime(),
+            name: orderName,
+            amount: totalAmount,
+            buyer_name: buyerName,
+            buyer_tel: buyerTel,
+            buyer_addr: buyerAddr
+        }, function (rsp) {
+            if (rsp.success) {
+                alert("결제가 완료되었습니다.\n고유ID: " + rsp.imp_uid);
+
+                // 주문 상세 정보 수집
+                let orderDetails = [];
+                $("#product-list .order-item").each(function () {
+                    let productId = $(this).find(".product-item a").attr("href").split('/').pop();
+                    let quantity = parseInt($(this).find(".product-variant").text().replace(/\D/g, ''));
+                    let productPrice = parseInt($(this).find(".item-price strong").text().replace(/\D/g, ''));
+
+                    orderDetails.push({
+                        productId: productId,
+                        quantity: quantity,
+                        productPrice: productPrice
+                    });
+                });
+
+                const paymentData = {
+                    totalAmount: totalAmount,
+                    orderAddress: buyerAddr,
+                    orderAddressee: buyerName,
+                    orderPhone: buyerTel,
+                    orderDetails: orderDetails
+                };
+                // const paymentData = {
+                //     orderName: orderName,
+                //     totalAmount: totalAmount,
+                //     orderAddress: buyerAddr,
+                //     orderAddressee: buyerName,
+                //     orderPhone: buyerTel
+                // };
+
+                $.ajax({
+                    type: "POST",
+                    url: "/order/complete",
+                    contentType: "application/json",
+                    data: JSON.stringify(paymentData),
+                    success: function (response) {
+                        localStorage.setItem("latestOrderId", response.orderId);
+                        location.href = "/order/orderComplete?orderId=" + response.orderId;
+                    },
+                    error: function () {
+                        alert("결제를 완료하는 데 실패했습니다.");
+                    }
+                });
+            } else {
+                alert("결제에 실패했습니다. 실패사유: " + rsp.error_msg);
+            }
+        });
     });
-  });
 
-
-    // 주소 등록 버튼 클릭 이벤트
     $("#add-address-button").click(function () {
         openAddressRegistration();
     });
 
-    // 주소 등록 팝업 열기
     function openAddressRegistration() {
         window.open('/order/addAddress', '주소 등록', 'width=500,height=700');
         window.addEventListener("message", function (event) {
