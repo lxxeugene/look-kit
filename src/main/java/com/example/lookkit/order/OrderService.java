@@ -18,11 +18,30 @@ public class OrderService {
         this.orderMapper = orderMapper;
     }
 
-    public List<OrderDetailDTO> getOrderDetails(List<Integer> selectedItems) {
-        return orderMapper.getOrderDetails(selectedItems); // 주문 상세 정보 가져오기
+    public void completeOrder(OrderVO orderVO) {
+        orderMapper.insertOrder(orderVO);
+        for (OrderDetailVO detail : orderVO.getOrderDetails()) {
+            orderMapper.insertOrderDetail(detail);
+        }
     }
 
-    public void completeOrder(OrderVO orderVO) {
-        orderMapper.completeOrder(orderVO); // 주문 정보 저장하기
+    public OrderVO getOrderById(int orderId) {
+        return orderMapper.findOrderById(orderId);
+    }
+
+    public List<OrderDetailDTO> getOrderDetailsByOrderId(int orderId) {
+        return orderMapper.findOrderDetailsByOrderId(orderId);
+    }
+
+    public AddressVO getUserAddress(long userId) {
+        return orderMapper.findUserAddress(userId);
+    }
+
+    public void saveAddress(AddressVO addressVO) {
+        orderMapper.insertAddress(addressVO);
     }
 }
+
+
+
+    

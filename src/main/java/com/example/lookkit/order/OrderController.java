@@ -1,13 +1,18 @@
 package com.example.lookkit.order;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,68 +40,73 @@ public class OrderController {
         this.productService = productService;
     }
 
-    private List<OrderDetailDTO> fetchOrderDetails(long userId) {
-        List<CartVO> cartItems = cartService.getCartItemsByUserId(userId);
-
-        return cartItems.stream().map(cartItem -> {
-            ProductVO product = productService.getProductById(cartItem.getProductId());
-            return OrderDetailDTO.builder()
-                    .productId(cartItem.getProductId())
-                    .productName(product.getProductName())
-                    .brandName(product.getBrandName())
-                    .quantity(cartItem.getQuantity())
-                    .productPrice(product.getProductPrice())
-                    .build();
-        }).toList();
-    }
-
     @GetMapping
-    public String getOrderPage(Authentication authentication, Model model) {
+    public String getOrderPage(Authentication authentication, 
+                               @RequestParam(required = false) Integer productId, 
+                               @RequestParam(required = false) Integer quantity, 
+                               Model model) {
         CustomUser user = (CustomUser) authentication.getPrincipal();
-        long userId = user.getUserId();
+        List<OrderDetailDTO> orderItems = new ArrayList<>();
 
-        List<OrderDetailDTO> orderItems = fetchOrderDetails(userId);
+        if (productId != null && quantity != null) {
+            // Product 페이지에서 바로 구매하기 버튼을 누른 경우
+            ProductVO product = productService.getProductById(productId);
+            if (product != null) {
+                OrderDetailDTO orderDetail = new OrderDetailDTO(productId, product.getProductName(), product.getBrandName(), quantity, product.getProductPrice());
+                orderItems.add(orderDetail);
+            }
+        } else {
+            // Cart 페이지에서 구매하기 버튼을 누른 경우
+            List<CartVO> cartItems = cartService.getCartItemsByUserId(user.getUserId());
+            if (!cartItems.isEmpty()) {
+                orderItems = cartItems.stream()
+                        .map(cart -> new OrderDetailDTO(cart.getProductId(), cart.getProductName(), cart.getBrandName(), cart.getQuantity(), cart.getProductPrice()))
+                        .collect(Collectors.toList());
+            }
+        }
+
+        if (orderItems.isEmpty()) {
+            model.addAttribute("errorMessage", "주문할 상품 정보가 없습니다. 장바구니를 확인해주세요.");
+            return "cart"; // 주문 정보가 없으면 장바구니로 되돌림
+        }
+
         int totalAmount = orderItems.stream().mapToInt(item -> item.getProductPrice() * item.getQuantity()).sum();
-        int totalQuantity = orderItems.stream().mapToInt(OrderDetailDTO::getQuantity).sum();
-
         model.addAttribute("orderItems", orderItems);
         model.addAttribute("totalAmount", totalAmount);
-        model.addAttribute("totalQuantity", totalQuantity);
+        model.addAttribute("userAddress", orderService.getUserAddress(user.getUserId()));  // 사용자 주소 정보 가져오기
 
         return "order";
     }
 
-    @GetMapping("/details")
+
+
+    @PostMapping("/complete")
     @ResponseBody
-    public List<OrderDetailDTO> getOrderDetails(Authentication authentication) {
+    public ResponseEntity<Map<String, Object>> completeOrder(@RequestBody OrderVO orderVO, Authentication authentication) {
         CustomUser user = (CustomUser) authentication.getPrincipal();
-        long userId = user.getUserId();
+        orderVO.setUserId(user.getUserId());
+        orderService.completeOrder(orderVO);
 
-        return fetchOrderDetails(userId);
+        Map<String, Object> response = new HashMap<>();
+        response.put("orderId", orderVO.getOrderId());
+        return ResponseEntity.ok(response);
     }
 
-    @PostMapping
-    public String handleOrder(@RequestParam int productId, @RequestParam int quantity, Authentication authentication, Model model) {
-        CustomUser user = (CustomUser) authentication.getPrincipal();
-        long userId = user.getUserId();
+    @GetMapping("/orderComplete")
+    public String orderCompletePage() {
+        return "orderComplete";
+    }
 
-        ProductVO product = productService.getProductById(productId);
-        OrderDetailDTO orderItem = OrderDetailDTO.builder()
-                .productId(productId)
-                .productName(product.getProductName())
-                .brandName(product.getBrandName())
-                .quantity(quantity)
-                .productPrice(product.getProductPrice())
-                .build();
+    @GetMapping("/complete/details/{orderId}")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getOrderCompleteDetails(@PathVariable int orderId) {
+        OrderVO order = orderService.getOrderById(orderId);
+        List<OrderDetailDTO> orderDetails = orderService.getOrderDetailsByOrderId(orderId);
 
-        List<OrderDetailDTO> orderItems = List.of(orderItem);
-        int totalAmount = product.getProductPrice() * quantity;
-
-        model.addAttribute("orderItems", orderItems);
-        model.addAttribute("totalAmount", totalAmount);
-        model.addAttribute("totalQuantity", quantity);
-
-        return "order";
+        Map<String, Object> response = new HashMap<>();
+        response.put("order", order);
+        response.put("orderDetails", orderDetails);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/addAddress")
@@ -104,9 +114,12 @@ public class OrderController {
         return "addAddress";
     }
 
-    @GetMapping("/orderComplete")
-    public String orderCompletePage(Model model) {
-       return "orderComplete";
+    @PostMapping("/addAddress")
+    public String addAddress(@RequestBody AddressVO addressVO, Authentication authentication) {
+        CustomUser user = (CustomUser) authentication.getPrincipal();
+        addressVO.setUserId(user.getUserId());
+        orderService.saveAddress(addressVO);
+        return "redirect:/order";
     }
 }
 

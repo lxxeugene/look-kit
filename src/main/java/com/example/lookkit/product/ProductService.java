@@ -18,7 +18,7 @@ public class ProductService {
     }
 
     public ProductVO getProductById(int productId) {
-        return productMapper.getProductById(productId); 
+        return productMapper.findById(productId);
     }
 
     public List<ProductVO> getProductsByCategory(String type) {

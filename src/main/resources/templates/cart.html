@@ -89,12 +89,14 @@
  }
  
  .store-header {
-   display: flex;
-   align-items: center;
-   gap: 10px;
-   font-size: 16px;
-   font-weight: 600;
-   margin-bottom: 10px;
+  width: 100%;
+  display: flex;
+  /* margin-bottom: 20px; */
+  border-top: 1px solid #101010;
+  padding: 20px;
+  /* gap: 70px; */
+  flex-direction: row;
+   
  }
  
  .cart-item {
@@ -156,6 +158,18 @@
    font-weight: bold;
    color: #101010;
  }
+ .updateditem-price {
+   font-size: 16px;
+   font-weight: bold;
+   color: #101010;
+ }
+ .item-price-box {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    flex: 1;
+    margin-right: 15px;
+ }
  
  /* 옵션 및 수량 변경 버튼 */
  .quantity-input {
@@ -207,6 +221,12 @@
    cursor: pointer;
  }
  
+ .cart-actions {
+  flex: 1 1 30%;
+  display: flex;
+  justify-content: flex-end;
+
+ }
  .delete-item-button {
    background: none;
    border: none;
@@ -295,7 +315,7 @@
       
     </div>
   
-  <div class="cart-item-list">
+          <div class="cart-item-list">
         <!-- 장바구니 항목이 여기 추가됩니다 -->
           </div>
           <div class="cart-summary">
@@ -338,10 +358,6 @@
         cartItems.forEach(item => {
           const productPrice = item.productPrice;
 
-          if (productPrice === undefined) {
-            console.error(`상품 ID ${item.productId}에 대한 가격 정보가 없습니다.`);
-            return;
-          }
 
           const cartItemHTML = `
             <div class="cart-item" data-cart-id="${item.cartId}">
@@ -358,8 +374,13 @@
                 <div class="product-name">${item.productName}</div>
                 <div class="product-variant">${item.quantity}개</div>
               </div>
-              <div class="item-price">
-                <strong>${productPrice.toLocaleString()}원</strong>
+              <div class="item-price-box">
+                <div class="item-price">
+                  <strong>${productPrice.toLocaleString()}원</strong>
+                </div>
+                <div class="updateditem-price">
+                  <strong>${productPrice.toLocaleString()}원</strong>
+                </div>
               </div>
               <div>
                 <input class="item-quantity quantity-input" type="number" value="${item.quantity}" min="1" data-cart-id="${item.cartId}" />
@@ -388,12 +409,8 @@
         url: "/cart/update",
         data: { cartId: cartId, quantity: newQuantity },
         success: function() {
-          const cartItem = $(`[data-cart-id='${cartId}']`);
-          const productPrice = parseInt(cartItem.find(".product-price").text().replace(/\D/g, ""));
-          cartItem.find(".product-variant").text(`${newQuantity}개`);
-          cartItem.find(".item-price .product-price").text((productPrice * newQuantity).toLocaleString() + "원");
           updateTotalPrice();
-        },
+      },
         error: function() {
           alert("수량을 변경하는 데 실패했습니다.");
         }
@@ -451,6 +468,9 @@
       $("#checkout-button span").text(`총 ${totalQuantity}개 / ${totalAmount.toLocaleString()}원 주문하기`);
     }
 
+    $("#checkout-button").click(function() {
+      location.href = "/cart/checkout";
+    });
   });
 </script>
 </th:block>

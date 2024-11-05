@@ -1,19 +1,16 @@
 package com.example.lookkit.cart;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import com.example.lookkit.order.OrderDetailDTO;
-import com.example.lookkit.order.OrderVO;
 import com.example.lookkit.product.ProductService;
 import com.example.lookkit.product.ProductVO;
 import com.example.lookkit.user.CustomUser;
-import com.example.lookkit.order.OrderService;
-
 import java.util.List;
-import java.util.stream.Collectors;
+
 
 @Controller
 @RequestMapping("/cart")
@@ -30,40 +27,15 @@ public class CartController {
 
     @GetMapping
     public String getCartPage(Model model, Authentication authentication) {
-        List<CartVO> cartItems = fetchCartItemsWithDetails(authentication);
-        int totalAmount = cartItems.stream().mapToInt(item -> item.getProductPrice() * item.getQuantity()).sum();
-        int totalQuantity = cartItems.stream().mapToInt(CartVO::getQuantity).sum();
-
-        model.addAttribute("cartItems", cartItems);
-        model.addAttribute("totalAmount", totalAmount);
-        model.addAttribute("totalQuantity", totalQuantity);
-        return "cart"; 
-    }
-
-    @PostMapping("/add")
-    public String addToCart(@ModelAttribute CartVO cartVO, Authentication authentication) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return "redirect:/login";
-        }
-
-        CustomUser user = (CustomUser) authentication.getPrincipal();
-        long userId = user.getUserId();
-        cartVO.setUserId(userId);
-
-        CartVO existingCartItem = cartService.findCartItemByUserIdAndProductId(userId, cartVO.getProductId());
-        if (existingCartItem != null) {
-            existingCartItem.setQuantity(existingCartItem.getQuantity() + cartVO.getQuantity());
-            cartService.updateCart(existingCartItem.getCartId(), existingCartItem.getQuantity());
-        } else {
-            cartService.addToCart(cartVO);
-        }
-        return "redirect:/cart"; 
+        return "cart";
     }
 
     @GetMapping("/items")
     @ResponseBody
-    public List<CartVO> getCartItems(Authentication authentication) {
-        return fetchCartItemsWithDetails(authentication);
+    public ResponseEntity<List<CartVO>> getCartItems(Authentication authentication) {
+        CustomUser user = (CustomUser) authentication.getPrincipal();
+        List<CartVO> cartItems = fetchCartItemsWithDetails(authentication);
+        return ResponseEntity.ok(cartItems);
     }
 
     @PostMapping("/update")
@@ -77,22 +49,28 @@ public class CartController {
         cartService.deleteFromCart(cartIds);
         return "redirect:/cart";
     }
-    
 
-    @PostMapping("/checkout")
+    @GetMapping("/checkout")
     public String checkout(Authentication authentication, Model model) {
-        CustomUser user = (CustomUser) authentication.getPrincipal();
-        long userId = user.getUserId();
+    CustomUser user = (CustomUser) authentication.getPrincipal();
+    long userId = user.getUserId();
 
-        List<CartVO> cartItems = fetchCartItemsWithDetails(authentication);
-        int totalAmount = cartItems.stream().mapToInt(item -> item.getProductPrice() * item.getQuantity()).sum();
-        int totalQuantity = cartItems.stream().mapToInt(CartVO::getQuantity).sum();
-
-        model.addAttribute("orderItems", cartItems);
-        model.addAttribute("totalAmount", totalAmount);
-        model.addAttribute("totalQuantity", totalQuantity);
-        return "redirect:/order";
+    List<CartVO> cartItems = fetchCartItemsWithDetails(authentication);
+    if (cartItems.isEmpty()) {
+        model.addAttribute("errorMessage", "주문할 상품이 없습니다. 장바구니를 확인해 주세요.");
+        return "cart"; // 주문할 상품이 없으면 장바구니로 되돌립니다.
     }
+
+    int totalAmount = cartItems.stream().mapToInt(item -> item.getProductPrice() * item.getQuantity()).sum();
+    int totalQuantity = cartItems.stream().mapToInt(CartVO::getQuantity).sum();
+
+    model.addAttribute("orderItems", cartItems);
+    model.addAttribute("totalAmount", totalAmount);
+    model.addAttribute("totalQuantity", totalQuantity);
+    return "redirect:/order";
+}
+
+
     private List<CartVO> fetchCartItemsWithDetails(Authentication authentication) {
         CustomUser user = (CustomUser) authentication.getPrincipal();
         long userId = user.getUserId();
@@ -103,10 +81,13 @@ public class CartController {
             cartItem.setProductName(product.getProductName());
             cartItem.setProductThumbnail(product.getProductThumbnail());
             cartItem.setProductPrice(product.getProductPrice());
-            cartItem.setBrandName(product.getBrandName()); // brandName 추가
+            cartItem.setBrandName(product.getBrandName()); 
         });
 
         return cartItems;
     }
 }
+
+
+
 
